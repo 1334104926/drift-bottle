@@ -1,16 +1,13 @@
-FROM node:20-alpine
+FROM node:20-slim
 
 WORKDIR /app
 
-# Install dependencies
 COPY package*.json ./
-RUN npm install
 
-# Copy application
+RUN npm install --production
+
 COPY . .
 
-# Expose port
 EXPOSE 3000
 
-# Start server
-CMD ["npm", "start"]
+CMD ["node", "server.js"]

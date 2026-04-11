@@ -4,9 +4,17 @@
     "builder": "NIXPACKS",
     "nixpacksPlan": {
       "phases": {
+        "setup": {
+          "nixpkgs": ["nodejs_20", "npm"]
+        },
         "install": {
-          "nixpkgs": ["nodejs_20"],
-          "aptPackages": []
+          "cmds": ["npm install"]
+        },
+        "build": {
+          "cmds": []
+        },
+        "start": {
+          "cmds": ["node server.js"]
         }
       }
     }
