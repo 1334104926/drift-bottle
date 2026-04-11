@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>🌊 漂流瓶 - Drift Bottle</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --ocean-deep: #0a1628;
+      --ocean-mid: #1a3a5c;
+      --ocean-light: #2d5a87;
+      --sand: #f4e4bc;
+      --foam: #e8f4f8;
+      --bottle-blue: #4a90d9;
+      --bottle-green: #2ecc71;
+      --bottle-pink: #e91e63;
+      --bottle-gold: #f39c12;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: linear-gradient(180deg, var(--ocean-light) 0%, var(--ocean-mid) 50%, var(--ocean-deep) 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Ocean waves animation */
+    .waves {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .wave {
+      position: absolute;
+      bottom: 0;
+      left: -50%;
+      width: 200%;
+      height: 100px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0,60 C300,120 600,0 900,60 C1050,90 1150,90 1200,60 L1200,120 L0,120 Z' fill='rgba(255,255,255,0.05)'/%3E%3C/svg%3E") repeat-x;
+      background-size: 600px 100px;
+      animation: wave 15s linear infinite;
+    }
+
+    .wave:nth-child(2) {
+      bottom: 10px;
+      opacity: 0.5;
+      animation: wave 12s linear infinite reverse;
+    }
+
+    .wave:nth-child(3) {
+      bottom: 20px;
+      opacity: 0.3;
+      animation: wave 20s linear infinite;
+    }
+
+    @keyframes wave {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(50%); }
+    }
+
+    /* Floating particles */
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      animation: float 10s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.3; }
+      50% { transform: translateY(-100px) rotate(180deg); opacity: 0.8; }
+    }
+
+    /* Main container */
+    .container {
+      position: relative;
+      z-index: 10;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      padding: 30px 0;
+    }
+
+    .header h1 {
+      color: white;
+      font-size: 2.2rem;
+      font-weight: 300;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.9rem;
+    }
+
+    /* Stats */
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin: 20px 0;
+    }
+
+    .stat-item {
+      text-align: center;
+      color: white;
+    }
+
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 600;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      opacity: 0.7;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Main actions */
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      flex: 1;
+      justify-content: center;
+      padding: 20px 0;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 18px 32px;
+      border: none;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--bottle-blue) 0%, #357abd 100%);
+      color: white;
+      box-shadow: 0 8px 25px rgba(74, 144, 217, 0.4);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 35px rgba(74, 144, 217, 0.5);
+    }
+
+    .btn-primary:active {
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(10px);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .btn_THROW {
+      background: linear-gradient(135deg, var(--bottle-green) 0%, #27ae60 100%);
+      box-shadow: 0 8px 25px rgba(46, 204, 113, 0.4);
+    }
+
+    .btn_THROW:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 35px rgba(46, 204, 113, 0.5);
+    }
+
+    /* Bottle icon in button */
+    .btn-icon {
+      margin-right: 8px;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: linear-gradient(180deg, #1a3a5c 0%, var(--ocean-deep) 100%);
+      border-radius: 24px;
+      padding: 30px;
+      width: 100%;
+      max-width: 400px;
+      max-height: 80vh;
+      overflow-y: auto;
+      position: relative;
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-title {
+      color: white;
+      font-size: 1.3rem;
+      font-weight: 500;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 5px;
+      line-height: 1;
+    }
+
+    .modal-close:hover {
+      color: white;
+    }
+
+    /* Form elements */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+    }
+
+    .form-textarea {
+      width: 100%;
+      padding: 15px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      font-size: 1rem;
+      resize: none;
+      min-height: 120px;
+      transition: border-color 0.3s ease;
+    }
+
+    .form-textarea::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .form-textarea:focus {
+      outline: none;
+      border-color: var(--bottle-blue);
+    }
+
+    /* Color picker */
+    .color-picker {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    .color-option {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .color-option:hover {
+      transform: scale(1.1);
+    }
+
+    .color-option.selected {
+      border-color: white;
+      box-shadow: 0 0 15px currentColor;
+    }
+
+    .color-blue { background: var(--bottle-blue); }
+    .color-green { background: var(--bottle-green); }
+    .color-pink { background: var(--bottle-pink); }
+    .color-gold { background: var(--bottle-gold); }
+
+    /* Bottle display */
+    .bottle-container {
+      background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      border-radius: 20px;
+      padding: 25px;
+      margin: 20px 0;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .bottle-message {
+      color: white;
+      font-size: 1.1rem;
+      line-height: 1.6;
+      word-wrap: break-word;
+    }
+
+    .bottle-meta {
+      margin-top: 15px;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .bottle-bottle {
+      text-align: center;
+      font-size: 4rem;
+      margin: 20px 0;
+      animation: bobbing 3s ease-in-out infinite;
+    }
+
+    @keyframes bobbing {
+      0%, 100% { transform: translateY(0) rotate(-5deg); }
+      50% { transform: translateY(-10px) rotate(5deg); }
+    }
+
+    /* Reply section */
+    .replies-section {
+      margin-top: 20px;
+    }
+
+    .reply-item {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 10px;
+    }
+
+    .reply-content {
+      color: white;
+      font-size: 0.95rem;
+    }
+
+    .reply-time {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.4);
+      margin-top: 5px;
+    }
+
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 15px 30px;
+      border-radius: 50px;
+      font-size: 0.95rem;
+      z-index: 200;
+      animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s forwards;
+    }
+
+    @keyframes toastIn {
+      from { transform: translateX(-50%) translateY(100px); opacity: 0; }
+      to { transform: translateX(-50%) translateY(0); opacity: 1; }
+    }
+
+    @keyframes toastOut {
+      from { transform: translateX(-50%) translateY(0); opacity: 1; }
+      to { transform: translateX(-50%) translateY(100px); opacity: 0; }
+    }
+
+    /* Loading animation */
+    .loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      color: white;
+    }
+
+    .loading-bottle {
+      font-size: 4rem;
+      animation: loadingWave 1s ease-in-out infinite;
+    }
+
+    @keyframes loadingWave {
+      0%, 100% { transform: rotate(-20deg); }
+      50% { transform: rotate(20deg); }
+    }
+
+    .loading-text {
+      margin-top: 15px;
+      font-size: 1rem;
+      opacity: 0.8;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: 15px;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 20px;
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 0.8rem;
+    }
+
+    /* Ripple effect */
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.4);
+      transform: scale(0);
+      animation: ripple 0.6s linear;
+      pointer-events: none;
+    }
+
+    @keyframes ripple {
+      to {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+
+    /* Screen transitions */
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <!-- Ocean background effects -->
+  <div class="waves">
+    <div class="wave"></div>
+    <div class="wave"></div>
+    <div class="wave"></div>
+  </div>
+  
+  <div class="particles" id="particles"></div>
+
+  <div class="container">
+    <!-- Home Screen -->
+    <div class="screen active" id="homeScreen">
+      <div class="header">
+        <h1>🌊 漂流瓶</h1>
+        <p>把你的心声投入大海，遇见有趣的灵魂</p>
+      </div>
+
+      <div class="stats">
+        <div class="stat-item">
+          <div class="stat-value" id="bottleCount">-</div>
+          <div class="stat-label">瓶子总数</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="replyCount">-</div>
+          <div class="stat-label">回复总数</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" onclick="openThrowModal()">
+          <span class="btn-icon">🏺</span> 扔一个漂流瓶
+        </button>
+        <button class="btn btn-secondary" onclick="pickBottle()">
+          <span class="btn-icon">🤚</span> 捞一个漂流瓶
+        </button>
+      </div>
+    </div>
+
+    <!-- Pick Result Screen -->
+    <div class="screen" id="pickScreen">
+      <div class="header">
+        <h1>🌊 捞到漂流瓶</h1>
+      </div>
+      
+      <div id="pickContent">
+        <!-- Dynamic content here -->
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-secondary" onclick="showHome()">
+          ← 返回首页
+        </button>
+        <button class="btn btn-primary" onclick="pickBottle()">
+          <span class="btn-icon">🤚</span> 再捞一个
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Throw Modal -->
+  <div class="modal" id="throwModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">🌊 投掷漂流瓶</h2>
+        <button class="modal-close" onclick="closeThrowModal()">×</button>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">你想说什么？</label>
+        <textarea class="form-textarea" id="bottleContent" placeholder="写下你的心声、秘密、或者想分享的故事..." maxlength="500"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">选择瓶子的颜色</label>
+        <div class="color-picker">
+          <div class="color-option color-blue selected" data-color="blue" onclick="selectColor(this)"></div>
+          <div class="color-option color-green" data-color="green" onclick="selectColor(this)"></div>
+          <div class="color-option color-pink" data-color="pink" onclick="selectColor(this)"></div>
+          <div class="color-option color-gold" data-color="gold" onclick="selectColor(this)"></div>
+        </div>
+      </div>
+
+      <button class="btn btn_THROW" style="width: 100%;" onclick="throwBottle()">
+        <span class="btn-icon">🚀</span> 投出漂流瓶
+      </button>
+    </div>
+  </div>
+
+  <!-- Reply Modal -->
+  <div class="modal" id="replyModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">💬 回复漂流瓶</h2>
+        <button class="modal-close" onclick="closeReplyModal()">×</button>
+      </div>
+      
+      <div class="bottle-container" id="replyBottleInfo">
+        <!-- Bottle content will be shown here -->
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">你的回复</label>
+        <textarea class="form-textarea" id="replyContent" placeholder="写下你的回复..." maxlength="300"></textarea>
+      </div>
+
+      <button class="btn btn-primary" style="width: 100%;" onclick="sendReply()">
+        <span class="btn-icon">✉️</span> 发送回复
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // API base URL - change this when deployed
+    const API_BASE = window.location.origin;
+
+    // State
+    let currentBottle = null;
+    let selectedColor = 'blue';
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      createParticles();
+      loadStats();
+    });
+
+    // Create floating particles
+    function createParticles() {
+      const container = document.getElementById('particles');
+      for (let i = 0; i < 20; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 10 + 's';
+        particle.style.animationDuration = (10 + Math.random() * 10) + 's';
+        container.appendChild(particle);
+      }
+    }
+
+    // Load statistics
+    async function loadStats() {
+      try {
+        const response = await fetch(`${API_BASE}/api/stats`);
+        const data = await response.json();
+        if (data.success) {
+          document.getElementById('bottleCount').textContent = data.stats.bottlesThrown;
+          document.getElementById('replyCount').textContent = data.stats.replies;
+        }
+      } catch (error) {
+        console.error('Failed to load stats:', error);
+      }
+    }
+
+    // Screen navigation
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+    }
+
+    function showHome() {
+      showScreen('homeScreen');
+      loadStats();
+    }
+
+    // Throw modal
+    function openThrowModal() {
+      document.getElementById('throwModal').classList.add('active');
+      document.getElementById('bottleContent').value = '';
+    }
+
+    function closeThrowModal() {
+      document.getElementById('throwModal').classList.remove('active');
+    }
+
+    // Color selection
+    function selectColor(element) {
+      document.querySelectorAll('.color-option').forEach(el => el.classList.remove('selected'));
+      element.classList.add('selected');
+      selectedColor = element.dataset.color;
+    }
+
+    // Throw bottle
+    async function throwBottle() {
+      const content = document.getElementById('bottleContent').value.trim();
+      
+      if (!content) {
+        showToast('请输入内容');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/api/bottles`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content, color: selectedColor })
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+          showToast('瓶子已投入大海 🌊');
+          closeThrowModal();
+          loadStats();
+        } else {
+          showToast(data.error || '投放失败');
+        }
+      } catch (error) {
+        console.error('Throw error:', error);
+        showToast('网络错误，请重试');
+      }
+    }
+
+    // Pick bottle
+    async function pickBottle() {
+      const contentDiv = document.getElementById('pickContent');
+      contentDiv.innerHTML = `
+        <div class="loading">
+          <div class="loading-bottle">🏺</div>
+          <div class="loading-text">正在大海中寻找...</div>
+        </div>
+      `;
+      showScreen('pickScreen');
+
+      try {
+        const response = await fetch(`${API_BASE}/api/bottles/random`);
+        const data = await response.json();
+
+        if (data.bottle) {
+          currentBottle = data.bottle;
+          const time = new Date(data.bottle.createdAt).toLocaleString('zh-CN');
+          contentDiv.innerHTML = `
+            <div class="bottle-container">
+              <div class="bottle-bottle">🏺</div>
+              <div class="bottle-message">${escapeHtml(data.bottle.content)}</div>
+              <div class="bottle-meta">收到 ${time} · ${data.bottle.replyCount} 条回复</div>
+            </div>
+            <div class="actions">
+              <button class="btn btn-primary" onclick="openReplyModal()">
+                <span class="btn-icon">💬</span> 回复漂流瓶
+              </button>
+            </div>
+          `;
+        } else {
+          contentDiv.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-icon">🌊</div>
+              <p>大海空空如也...</p>
+              <p style="margin-top: 10px; font-size: 0.9rem;">还没有人投下漂流瓶</p>
+              <p style="margin-top: 5px; font-size: 0.9rem;">成为第一个吧！</p>
+            </div>
+          `;
+        }
+      } catch (error) {
+        console.error('Pick error:', error);
+        contentDiv.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">😢</div>
+            <p>网络错误，请重试</p>
+          </div>
+        `;
+      }
+    }
+
+    // Reply modal
+    function openReplyModal() {
+      if (!currentBottle) return;
+      
+      document.getElementById('replyBottleInfo').innerHTML = `
+        <div class="bottle-message">${escapeHtml(currentBottle.content)}</div>
+      `;
+      document.getElementById('replyContent').value = '';
+      document.getElementById('replyModal').classList.add('active');
+    }
+
+    function closeReplyModal() {
+      document.getElementById('replyModal').classList.remove('active');
+    }
+
+    // Send reply
+    async function sendReply() {
+      if (!currentBottle) return;
+      
+      const content = document.getElementById('replyContent').value.trim();
+      
+      if (!content) {
+        showToast('请输入回复内容');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/api/bottles/${currentBottle.id}/reply`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content })
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+          showToast('回复已发送 ✨');
+          closeReplyModal();
+          loadStats();
+        } else {
+          showToast(data.error || '发送失败');
+        }
+      } catch (error) {
+        console.error('Reply error:', error);
+        showToast('网络错误，请重试');
+      }
+    }
+
+    // Utility functions
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Close modal on backdrop click
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.remove('active');
+        }
+      });
+    });
+
+    // Add ripple effect to buttons
+    document.querySelectorAll('.btn').forEach(button => {
+      button.addEventListener('click', function(e) {
+        const ripple = document.createElement('span');
+        ripple.className = 'ripple';
+        const rect = this.getBoundingClientRect();
+        ripple.style.left = (e.clientX - rect.left) + 'px';
+        ripple.style.top = (e.clientY - rect.top) + 'px';
+        this.appendChild(ripple);
+        setTimeout(() => ripple.remove(), 600);
+      });
+    });
+  </script>
+</body>
+</html>
