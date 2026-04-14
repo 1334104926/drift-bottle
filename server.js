@@ -270,9 +270,16 @@ app.post('/api/messages', (req, res) => {
         return res.status(403).json({ error: '请先评论该瓶子' });
       }
       
-      // 非瓶子主人需要瓶子主人先回复才能私信
+      // 非瓶子主人需要瓶子主人回复（可以是评论或私信）才能私信
+      const ownerMessages = db.messages.filter(m => 
+        m.bottleId === bottleId && 
+        m.fromUserId === bottle.userId && 
+        m.toUserId === fromUserId
+      );
+      
       const ownerReplies = db.replies.filter(r => r.bottleId === bottleId && r.userId === bottle.userId);
-      if (ownerReplies.length === 0) {
+      
+      if (ownerMessages.length === 0 && ownerReplies.length === 0) {
         return res.status(403).json({ error: '等待瓶子主人回复后可私信' });
       }
     }
